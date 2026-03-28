@@ -3,19 +3,12 @@
 
 
 
-
-
-
-
-
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mobile Ambush Checking Form</title>
+    <title>Conducted Ambush Check in Auto Signalling Section</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     <style>
@@ -33,7 +26,7 @@
         }
 
         .container {
-            max-width: 80%;
+            max-width: 1120px;
             margin: 0 auto;
             background: white;
             border-radius: 15px;
@@ -46,27 +39,244 @@
             color: white;
             padding: 30px;
             text-align: center;
+            position: relative;
         }
 
         .header h1 {
-            font-size: 1.8em;
+            font-size: 2.5em;
             font-weight: bold;
             text-transform: uppercase;
             letter-spacing: 2px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-            margin-bottom: 5px;
+            margin-bottom: 10px;
         }
 
         .header h2 {
-            font-size: 1.2em;
-            font-weight: normal;
-            margin-top: 0;
+            font-size: 1.5em;
+            font-weight: bold;
+            text-transform: uppercase;
             letter-spacing: 1px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+            margin-top: 0;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+        }
+
+        .voice-toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .voice-toggle-label {
+            color: white;
+            font-size: 0.85em;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+            display: inline-block;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ffb366;
+            transition: 0.4s;
+            border-radius: 26px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        input:checked + .slider {
+            background-color: #2ecc71;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+
+        .voice-status {
+            color: white;
+            font-size: 0.75em;
+            font-weight: bold;
+            min-width: 30px;
+        }
+
+        .voice-indicator {
+            display: none;
+            color: white;
+            font-size: 1.3em;
+            animation: pulse 1.5s infinite;
+            margin-left: 5px;
+        }
+
+        .voice-indicator.listening {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .listening-text {
+            font-size: 0.75em;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            color: #e74c3c;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.05);
+                opacity: 0.9;
+            }
+        }
+
+        .input-with-mic {
+            position: relative;
+        }
+
+        .mic-icon {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            font-size: 18px;
+            color: #999;
+            transition: color 0.3s;
+        }
+
+        .mic-icon.active {
+            color: #e74c3c;
+            animation: micPulse 1s infinite;
+        }
+
+        @keyframes micPulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
         }
 
         .form-container {
             padding: 30px;
             background: #e6f2ff;
+        }
+
+        .info-section {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .info-section h2 {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .info-fields {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .info-field {
+            flex: 0 1 350px;
+        }
+
+        .info-field.full-width {
+            flex: 1 1 100%;
+        }
+
+        .info-field label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #2c3e50;
+            font-size: 12px;
+        }
+
+        .info-field input {
+            width: 100%;
+            padding: 8px;
+            border: 2px solid #b3d9ff;
+            border-radius: 5px;
+            font-size: 12px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .info-field input:focus {
+            outline: none;
+            border-color: #4a90e2;
+            box-shadow: 0 0 8px rgba(74, 144, 226, 0.3);
+        }
+
+        .checklist-section {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .checklist-section h3 {
+            font-size: 1em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .checklist-item {
+            padding: 10px;
+            margin-bottom: 8px;
+            background: #f0f8ff;
+            border-left: 4px solid #4a90e2;
+            border-radius: 4px;
+            font-size: 13px;
         }
 
         .table-wrapper {
@@ -136,13 +346,8 @@
             border: 2px solid #b3d9ff;
             border-radius: 5px;
             font-size: 12px;
-            transition: border-color 0.3s, box-shadow 0.3s;
-        }
-
-        /* Bold text for info fields */
-        .info-field input[type="text"],
-        .info-field select {
             font-weight: bold;
+            transition: border-color 0.3s, box-shadow 0.3s;
         }
 
         input[type="text"]:focus,
@@ -154,31 +359,6 @@
             outline: none;
             border-color: #4a90e2;
             box-shadow: 0 0 8px rgba(74, 144, 226, 0.3);
-        }
-
-        .info-fields {
-            display: flex;
-            justify-content: space-between;
-            gap: 20px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-        }
-
-        .info-field {
-            flex: 0 1 350px;
-        }
-
-        .info-field label {
-            display: block;
-            font-weight: bold;
-            margin-bottom: 5px;
-            color: #2c3e50;
-            font-size: 12px;
-        }
-
-        .info-field input {
-            width: 100%;
-            font-size: 12px;
         }
 
         .remarks-section {
@@ -302,96 +482,28 @@
             border: 2px solid #f5c6cb;
         }
 
-        /* Voice typing toggle switch */
-        .voice-toggle-container {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            padding: 15px 30px;
-            background: #f0f8ff;
-            border-bottom: 2px solid #b3d9ff;
-        }
-
-        .voice-toggle-label {
-            margin-right: 10px;
-            font-weight: bold;
-            color: #2c3e50;
-            font-size: 14px;
-        }
-
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 60px;
-            height: 34px;
-        }
-
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-            border-radius: 34px;
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 26px;
-            width: 26px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-
-        input:checked + .slider {
-            background-color: #27ae60;
-        }
-
-        input:checked + .slider:before {
-            transform: translateX(26px);
-        }
-
-        .voice-status {
-            margin-left: 15px;
-            font-size: 12px;
-            color: #666;
-            font-style: italic;
-        }
-
-        .voice-active {
-            color: #27ae60;
-            font-weight: bold;
-        }
-
-        .listening-indicator {
-            display: none;
-            margin-left: 10px;
-            color: #e74c3c;
-            font-weight: bold;
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 1.5em;
+            }
+
+            .header h2 {
+                font-size: 1em;
+            }
+
+            .header-content {
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .voice-toggle-container {
+                flex-direction: row;
+                gap: 8px;
+            }
+
+            .voice-toggle-label {
+                font-size: 0.7em;
             }
 
             .button-group {
@@ -403,106 +515,122 @@
             }
         }
     </style>
-<!-- Code injected by Five-server -->
-  <script async data-id="five-server" data-file="c:\Users\asus\OneDrive\Desktop\ALL FORMS\mobile ambush\index.html" type="application/javascript" src="/fiveserver.js"></script>
-  </head>
+</head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>RS VALVE HOLDING BY ALP WHILE APPROACHING DANGER SIGNAL AMBUSH REPORT</h1>
+            <h1>Conducted Ambush Check in Auto Signalling Section</h1>
             <h2>Raipur Division</h2>
-        </div>
-
-        <!-- Voice Typing Toggle -->
-        <div class="voice-toggle-container">
-            <span class="voice-toggle-label">Voice Typing:</span>
-            <label class="switch">
-                <input type="checkbox" id="voiceToggle" onchange="toggleVoiceTyping()">
-                <span class="slider"></span>
-            </label>
-            <span class="voice-status" id="voiceStatus">OFF</span>
-            <span class="listening-indicator" id="listeningIndicator">🎤 Listening...</span>
+            <div class="header-content">
+                <div></div>
+                <div class="voice-toggle-container">
+                    <span class="voice-toggle-label">🎤 Voice</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="voiceToggle" onchange="toggleVoiceTyping()">
+                        <span class="slider"></span>
+                    </label>
+                    <span class="voice-status" id="voiceStatus">OFF</span>
+                    <span class="voice-indicator" id="voiceIndicator">
+                        <span>🎤</span>
+                        <span class="listening-text">Listening</span>
+                    </span>
+                </div>
+            </div>
         </div>
 
         <div class="form-container">
-            <div class="info-fields" style="margin-bottom: 20px;">
-                <div class="info-field">
-                    <label for="formDate">DATE:</label>
-                    <input type="date" id="formDate">
-                </div>
-                <div class="info-field">
-                    <label for="formTime">TIME:</label>
-                    <input type="text" id="formTime">
-                </div>
-                <div class="info-field">
-                    <label for="formPlace">PLACE:</label>
-                    <input type="text" id="formPlace">
+            <!-- Basic Information Section -->
+            <div class="info-section">
+                <div class="info-fields">
+                    <div class="info-field full-width">
+                        <label for="place">Place:</label>
+                        <input type="text" id="place">
+                    </div>
+                    <div class="info-field">
+                        <label for="speedGun">Speed Gun:</label>
+                        <input type="text" id="speedGun">
+                    </div>
                 </div>
             </div>
+
+            <!-- Checklist Section -->
+            <div class="checklist-section">
+                <h3>Ambush checking was carried out at following points by using speed gun in Auto.sig.section:</h3>
+                <div class="checklist-item">
+                    <strong>1.</strong> Whether rules of Auto Signalling section are being followed by LP/ALP in case signal at danger.
+                </div>
+                <div class="checklist-item">
+                    <strong>2.</strong> Whether speed of the train after crossing the red signal was as per prescribed speed in G&SR.
+                </div>
+            </div>
+
+            <!-- Data Table -->
             <div class="table-wrapper">
                 <table id="dataTable">
                     <thead>
                         <tr>
-                            <th style="width: 50px;">S/No.</th>
-                            <th style="width: 180px;">Train No</th>
-                            <th style="width: 100px;">Loco No</th>
-                            <th style="width: 100px;">UP/DN</th>
-                            <th style="width: 150px;">Line No</th>
-                            <th style="width: 150px;">Arrival<br></th>
-                            <th style="width: 120px;">RS Holding</th>
-                            <th style="width: 230px;">Remarks</th>
+                            <th style="width: 30px;">Sl no.</th>
+                             <th style="width: 100px;">Loco No</th>
+                            <th style="width: 100px;">Train Number</th>
+                             <th style="width: 100px;">UP/DN</th>
+                            <th style="width: 120px;">Signal Number</th>
+                             <th style="width: 80px;">Time</th>
+                            
+                            <th style="width: 80px;">Speed (km/h)</th>
+                            <th style="width: 120px;">Rule followed</th>
+                        
                         </tr>
                     </thead>
                     <tbody id="tableBody">
                         <tr>
                             <td class="row-number">1</td>
                             <td><input type="text"></td>
-                            <td><input type="text"></td>
-                            <td><input type="text"></td>
-                            <td><input type="text"></td>
-                            <td><input type="text"></td>
-                            <td><select><option value="">Select</option><option value="YES">YES</option><option value="NO">NO</option></select></td>
-                            <td><textarea rows="2"></textarea></td>
+                            <td><input type="text" ></td>
+                            <td><input type="text" ></td>
+                            <td><input type="text" ></td>
+                            <td><input type="time" ></td>
+                            <td><input type="text" ></td>
+                            <td><textarea rows="2" ></textarea></td>
                         </tr>
                         <tr>
                             <td class="row-number">2</td>
                             <td><input type="text"></td>
-                            <td><input type="text"></td>
-                            <td><input type="text"></td>
-                            <td><input type="text"></td>
-                            <td><input type="text"></td>
-                            <td><select><option value="">Select</option><option value="YES">YES</option><option value="NO">NO</option></select></td>
-                            <td><textarea rows="2"></textarea></td>
+                            <td><input type="text" ></td>
+                            <td><input type="text" ></td>
+                            <td><input type="text" ></td>
+                            <td><input type="time" ></td>
+                            <td><input type="text" ></td>
+                            <td><textarea rows="2" ></textarea></td>
                         </tr>
                         <tr>
                             <td class="row-number">3</td>
                             <td><input type="text"></td>
-                            <td><input type="text"></td>
-                            <td><input type="text"></td>
-                            <td><input type="text"></td>
-                            <td><input type="text"></td>
-                            <td><select><option value="">Select</option><option value="YES">YES</option><option value="NO">NO</option></select></td>
-                            <td><textarea rows="2"></textarea></td>
+                            <td><input type="text" ></td>
+                            <td><input type="text" ></td>
+                            <td><input type="text" ></td>
+                            <td><input type="time" ></td>
+                            <td><input type="text" ></td>
+                            <td><textarea rows="2" ></textarea></td>
                         </tr>
                         <tr>
                             <td class="row-number">4</td>
                             <td><input type="text"></td>
-                            <td><input type="text"></td>
-                            <td><input type="text"></td>
-                            <td><input type="text"></td>
-                            <td><input type="text"></td>
-                            <td><select><option value="">Select</option><option value="YES">YES</option><option value="NO">NO</option></select></td>
-                            <td><textarea rows="2"></textarea></td>
+                            <td><input type="text" ></td>
+                            <td><input type="text" ></td>
+                            <td><input type="text" ></td>
+                            <td><input type="time" ></td>
+                            <td><input type="text" ></td>
+                            <td><textarea rows="2" ></textarea></td>
                         </tr>
                         <tr>
                             <td class="row-number">5</td>
                             <td><input type="text"></td>
-                            <td><input type="text"></td>
-                            <td><input type="text"></td>
-                            <td><input type="text"></td>
-                            <td><input type="text"></td>
-                            <td><select><option value="">Select</option><option value="YES">YES</option><option value="NO">NO</option></select></td>
-                            <td><textarea rows="2"></textarea></td>
+                            <td><input type="text" ></td>
+                            <td><input type="text" ></td>
+                            <td><input type="text" ></td>
+                            <td><input type="time" ></td>
+                            <td><input type="text" ></td>
+                            <td><textarea rows="2" ></textarea></td>
                         </tr>
                         <tr>
                             <td class="row-number">6</td>
@@ -510,8 +638,8 @@
                             <td><input type="text"></td>
                             <td><input type="text"></td>
                             <td><input type="text"></td>
+                            <td><input type="time"></td>
                             <td><input type="text"></td>
-                            <td><select><option value="">Select</option><option value="YES">YES</option><option value="NO">NO</option></select></td>
                             <td><textarea rows="2"></textarea></td>
                         </tr>
                         <tr>
@@ -520,8 +648,8 @@
                             <td><input type="text"></td>
                             <td><input type="text"></td>
                             <td><input type="text"></td>
+                            <td><input type="time"></td>
                             <td><input type="text"></td>
-                            <td><select><option value="">Select</option><option value="YES">YES</option><option value="NO">NO</option></select></td>
                             <td><textarea rows="2"></textarea></td>
                         </tr>
                         <tr>
@@ -530,8 +658,8 @@
                             <td><input type="text"></td>
                             <td><input type="text"></td>
                             <td><input type="text"></td>
+                            <td><input type="time"></td>
                             <td><input type="text"></td>
-                            <td><select><option value="">Select</option><option value="YES">YES</option><option value="NO">NO</option></select></td>
                             <td><textarea rows="2"></textarea></td>
                         </tr>
                         <tr>
@@ -540,18 +668,8 @@
                             <td><input type="text"></td>
                             <td><input type="text"></td>
                             <td><input type="text"></td>
+                            <td><input type="time"></td>
                             <td><input type="text"></td>
-                            <td><select><option value="">Select</option><option value="YES">YES</option><option value="NO">NO</option></select></td>
-                            <td><textarea rows="2"></textarea></td>
-                        </tr>
-                        <tr>
-                            <td class="row-number">10</td>
-                            <td><input type="text"></td>
-                            <td><input type="text"></td>
-                            <td><input type="text"></td>
-                            <td><input type="text"></td>
-                            <td><input type="text"></td>
-                            <td><select><option value="">Select</option><option value="YES">YES</option><option value="NO">NO</option></select></td>
                             <td><textarea rows="2"></textarea></td>
                         </tr>
                     </tbody>
@@ -565,6 +683,20 @@
             <div class="remarks-section">
                 <label for="otherRemarks">Other Remarks if any:</label>
                 <textarea id="otherRemarks" rows="2"></textarea>
+            </div>
+
+            <div class="info-fields">
+                <div class="info-field">
+                    <label for="formDate">Date:</label>
+                    <input type="date" id="formDate">
+                </div>
+                <div class="info-field">
+                    <label for="signature">Upload Signature:</label>
+                    <input type="file" id="signature" accept="image/*" onchange="previewSignature(event)">
+                    <div id="signaturePreview" style="margin-top: 10px; display: none;">
+                        <img id="signatureImg" style="max-width: 200px; max-height: 100px; border: 2px solid #4a90e2; border-radius: 5px;">
+                    </div>
+                </div>
             </div>
 
             <div class="info-fields">
@@ -629,22 +761,13 @@
                         <option value="OTHERS">OTHERS</option>
                     </select>
                 </div>
-                <BR>
-                    <br>
-            
-                <div class="info-field">
-                    <label for="signature">Upload Signature:</label>
-                    <input type="file" id="signature" accept="image/*" onchange="previewSignature(event)">
-                    <div id="signaturePreview" style="margin-top: 10px; display: none;">
-                        <img id="signatureImg" style="max-width: 200px; max-height: 100px; border: 2px solid #4a90e2; border-radius: 5px;">
-                    </div>
-                </div>
             </div>
+
+            <input type="file" id="draftFileInput" accept=".json" onchange="handleDraftUpload(event)">
 
             <div class="button-group">
                 <button class="save-draft-btn" onclick="saveDraft()">Save Draft</button>
                 <button class="upload-draft-btn" onclick="document.getElementById('draftFileInput').click()">Upload Draft</button>
-                <input type="file" id="draftFileInput" accept=".json" onchange="uploadDraft(event)">
                 <button class="submit-btn" onclick="submitForm()">Submit</button>
                 <button class="pdf-btn" onclick="generatePDF()">Generate PDF</button>
             </div>
@@ -654,7 +777,7 @@
     </div>
 
     <script>
-        let rowCount = 10;
+        let rowCount = 9;
 
         function previewSignature(event) {
             const file = event.target.files[0];
@@ -678,12 +801,12 @@
             newRow.innerHTML = `
                 <td class="row-number">${rowCount}</td>
                 <td><input type="text"></td>
-                <td><input type="text"></td>
-                <td><input type="text"></td>
-                <td><input type="text"></td>
-                <td><input type="text"></td>
-                <td><select><option value="">Select</option><option value="YES">YES</option><option value="NO">NO</option></select></td>
-                <td><textarea rows="2"></textarea></td>
+                <td><input type="text" ></td>
+                <td><input type="text" ></td>
+                <td><input type="text" ></td>
+                <td><input type="time" ></td>
+                <td><input type="text" ></td>
+                <td><textarea rows="2" ></textarea></td>
             `;
 
             tableBody.appendChild(newRow);
@@ -700,132 +823,81 @@
 
         function submitForm() {
             const rows = document.querySelectorAll('#tableBody tr');
-            const data = [];
-            let isValid = true;
-
-            // Get additional form fields
-            const otherRemarks = document.getElementById('otherRemarks').value || '';
-            const formDate = document.getElementById('formDate').value || '';
-            const formTime = document.getElementById('formTime').value || '';
-            const formPlace = document.getElementById('formPlace').value || '';
-            const cliNameSelect = document.getElementById('cliName');
-            const cliName = cliNameSelect.options[cliNameSelect.selectedIndex].value || '';
-
-            // Validate required fields
-            if (!formDate) {
-                showMessage('Please select a date!', 'error');
-                return;
-            }
-
-            if (!cliName) {
-                showMessage('Please select CLI Name and HQ!', 'error');
-                return;
-            }
+            const data = {
+                place: document.getElementById('place').value,
+                speedGun: document.getElementById('speedGun').value,
+                records: [],
+                otherRemarks: document.getElementById('otherRemarks').value,
+                date: document.getElementById('formDate').value,
+                cliName: document.getElementById('cliName').value
+            };
 
             rows.forEach((row, index) => {
-                const cells = row.querySelectorAll('input, select, textarea');
+                const cells = row.querySelectorAll('input, textarea');
                 const rowData = {
-                    sno: index + 1,
-                    name: cells[0].value,
-                    crewId: cells[1].value,
-                    designation: cells[2].value,
-                    callLogs: cells[3].value,
-                    mobileStatus: cells[4].value,
-                    callingTime: cells[5].value,
+                    slNo: index + 1,
+                    time: cells[0].value,
+                    trainNumber: cells[1].value,
+                    signalNumber: cells[2].value,
+                    timeTaken: cells[3].value,
+                    speed: cells[4].value,
+                    lpName: cells[5].value,
                     remarks: cells[6].value
                 };
 
-                data.push(rowData);
+                data.records.push(rowData);
             });
 
-            // Prepare payload for Google Apps Script
-            const payload = {
-                formDate: formDate,
-                formTime: formTime,
-                formPlace: formPlace,
-                cliName: cliName,
-                otherRemarks: otherRemarks,
-                tableData: data
-            };
+            console.log('Form Data:', data);
+            showMessage('Form submitted successfully! Check console for data.', 'success');
 
-            console.log('Submitting Data:', payload);
-            showMessage('Submitting data to Google Sheets...', 'success');
-
-            // Submit to Google Apps Script
-            fetch('https://script.google.com/macros/s/AKfycbw4Lyf8w03rCLsQNvvcezkMNZ5D1lW0oyMl4tyndhCq-GeUnvGXPPHXOpAa4LMG9Fnn5Q/exec', {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(payload)
-            })
-            .then(() => {
-                showMessage('Data submitted successfully to Google Sheets!', 'success');
-                console.log('Submission successful!');
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-                showMessage('Error submitting data. Please try again.', 'error');
-            });
+            // You can send this data to a server here
+            // Example: fetch('/api/submit', { method: 'POST', body: JSON.stringify(data) })
         }
 
         function generatePDF() {
             const { jsPDF } = window.jspdf;
-            const doc = new jsPDF('p', 'mm', 'a4'); // Portrait orientation
-            const pageWidth = doc.internal.pageSize.getWidth();
-
-            // Get form field values
-            const formDate = document.getElementById('formDate').value || '';
-            const formTime = document.getElementById('formTime').value || '';
-            const formPlace = document.getElementById('formPlace').value || '';
+            const doc = new jsPDF('p', 'mm', 'a4');
 
             // Add title
+            doc.setFontSize(16);
+            doc.setFont(undefined, 'bold');
+            doc.text('Conducted Ambush Check in Auto Signalling Section', doc.internal.pageSize.getWidth() / 2, 15, { align: 'center' });
+
+            // Add Raipur Division heading
             doc.setFontSize(14);
             doc.setFont(undefined, 'bold');
-            doc.text('RS VALVE HOLDING BY ALP WHILE APPROACHING', pageWidth / 2, 14, { align: 'center' });
-            doc.text('DANGER SIGNAL AMBUSH REPORT', pageWidth / 2, 20, { align: 'center' });
+            doc.text('Raipur Division', doc.internal.pageSize.getWidth() / 2, 23, { align: 'center' });
 
-            // Add subtitle
-            doc.setFontSize(12);
-            doc.setFont(undefined, 'normal');
-            doc.text('Raipur Division', pageWidth / 2, 26, { align: 'center' });
-
-            // Add full line below Raipur Division
+            // Add full-page horizontal line below Raipur Division
+            const pageWidth = doc.internal.pageSize.getWidth();
+            doc.setDrawColor(0, 0, 0); // Black color
             doc.setLineWidth(0.5);
-            doc.setDrawColor(74, 144, 226);
-            doc.line(14, 28, pageWidth - 14, 28);
+            doc.line(14, 26, pageWidth - 14, 26); // Full-page line from left margin to right margin
 
-            // ── Info fields just below heading (no borders, plain text) ──
+            // Add Place and Speed Gun info
+            const place = document.getElementById('place').value || '';
+            const speedGun = document.getElementById('speedGun').value || '';
+
+            doc.setFontSize(10);
+            doc.setFont(undefined, 'bold');
+            doc.text('PLACE - ' + place, 14, 35);
+            doc.text('SPEED GUN', 14, 42);
+
+            // Add checklist
             doc.setFontSize(9);
             doc.setFont(undefined, 'bold');
-            let infoY = 35;
-            const col1X = 14;
-            const col2X = pageWidth / 2 + 5;
-
-            // Row 1: Date | Time
-            doc.text('DATE:', col1X, infoY);
-            doc.setFont(undefined, 'bold');
-            doc.text(formDate, col1X + 12, infoY);
-
-            doc.setFont(undefined, 'bold');
-            doc.text('TIME:', col2X, infoY);
-            doc.setFont(undefined, 'bold');
-            doc.text(formTime, col2X + 12, infoY);
-
-            // Row 2: Place only
-            infoY += 6;
-            doc.setFont(undefined, 'bold');
-            doc.text('PLACE:', col1X, infoY);
-            doc.setFont(undefined, 'bold');
-            doc.text(formPlace, col1X + 14, infoY);
+            doc.text('Ambush checking was carried out at following points by using speed gun in Auto.sig.section:', 14, 50);
+            doc.setFont(undefined, 'normal');
+            doc.text('1. Whether rules of Auto Signalling section are being followed by LP/ALP in case signal at danger.', 14, 56);
+            doc.text('2. Whether speed of the train after crossing the red signal was as per prescribed speed in G&SR.', 14, 62);
 
             // Get table data
             const rows = document.querySelectorAll('#tableBody tr');
             const tableData = [];
 
             rows.forEach((row) => {
-                const cells = row.querySelectorAll('input, select, textarea');
+                const cells = row.querySelectorAll('input, textarea');
                 const rowNumber = row.querySelector('.row-number').textContent;
 
                 tableData.push([
@@ -842,31 +914,31 @@
 
             // Generate table
             doc.autoTable({
-                head: [['S/No.', 'Train No', 'Loco No', 'UP/DN', 'Line No', 'Arrival', 'RS Holding', 'Remarks']],
+                head: [['Sl no.', 'Loco No', 'Train Number', 'UP/DN', 'Signal Number', 'Time', 'Speed (km/h)', 'Rule followed']],
                 body: tableData,
-                startY: 48,
+                startY: 68,
                 theme: 'grid',
                 headStyles: {
                     fillColor: [74, 144, 226],
                     textColor: [255, 255, 255],
                     fontStyle: 'bold',
                     halign: 'center',
-                    fontSize: 9
+                    fontSize: 8
                 },
                 styles: {
-                    fontSize: 8,
-                    cellPadding: 2.5,
+                    fontSize: 7,
+                    cellPadding: 2,
                     halign: 'center'
                 },
                 columnStyles: {
-                    0: { cellWidth: 10 },
-                    1: { cellWidth: 30 },
-                    2: { cellWidth: 18 },
-                    3: { cellWidth: 18 },
+                    0: { cellWidth: 12 },
+                    1: { cellWidth: 18 },
+                    2: { cellWidth: 25 },
+                    3: { cellWidth: 20 },
                     4: { cellWidth: 30 },
-                    5: { cellWidth: 25 },
-                    6: { cellWidth: 18 },
-                    7: { cellWidth: 41, fontStyle: 'bold' }
+                    5: { cellWidth: 18 },
+                    6: { cellWidth: 25 },
+                    7: { cellWidth: 42 }
                 },
                 alternateRowStyles: {
                     fillColor: [240, 248, 255]
@@ -900,9 +972,9 @@
 
             yPosition += boxHeight + 12;
 
-            // Get CLI Name and Signature
-            const cliNameSelect = document.getElementById('cliName');
-            const cliName = cliNameSelect.options[cliNameSelect.selectedIndex].value || '';
+            // Get CLI Name, Date, and Signature
+            const cliName = document.getElementById('cliName').value || '';
+            const formDate = document.getElementById('formDate').value || '';
             const signatureFile = document.getElementById('signature').files[0];
 
             // Add Signature if uploaded
@@ -930,26 +1002,30 @@
             }
 
             function addDateAndCLI() {
-                const pgWidth = doc.internal.pageSize.getWidth();
+                const pageWidth = doc.internal.pageSize.getWidth();
+                doc.setFontSize(10);
+                doc.setFont(undefined, 'normal');
 
                 // If signature was added, move down
                 if (signatureFile) {
                     yPosition += 20;
                 }
 
-                // CLI Name only (Date/Time/Place shown above table)
-                doc.setFontSize(10);
+                // Date on the left
+                if (formDate) {
+                    doc.text(`Date: ${formDate}`, 14, yPosition);
+                }
+
+                // CLI Name on the right (below signature if exists)
                 if (cliName) {
-                    // Print CLI name value only (right aligned, no label)
-                    doc.setFont(undefined, 'bold');
-                    doc.text(cliName, pgWidth - 14, yPosition, { align: 'right' });
+                    doc.text(`CLI Name and HQ: ${cliName}`, pageWidth - 14, yPosition, { align: 'right' });
                 }
             }
 
             function saveDocument() {
                 // Save PDF
                 const timestamp = new Date().toISOString().split('T')[0];
-                doc.save(`Mobile_Ambush_Checking_${timestamp}.pdf`);
+                doc.save(`Ambush_Check_Auto_Signalling_${timestamp}.pdf`);
                 showMessage('PDF generated and downloaded successfully!', 'success');
             }
         }
@@ -965,178 +1041,51 @@
             }, 3000);
         }
 
-        // Voice Typing Functionality
-        let recognition;
-        let isVoiceEnabled = false;
-        let currentFocusedElement = null;
-
-        // Check browser support for Speech Recognition
-        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            recognition = new SpeechRecognition();
-            recognition.continuous = true;
-            recognition.interimResults = true;
-            recognition.lang = 'en-IN'; // English (India)
-
-            recognition.onstart = function() {
-                document.getElementById('listeningIndicator').style.display = 'inline';
-            };
-
-            recognition.onend = function() {
-                document.getElementById('listeningIndicator').style.display = 'none';
-                if (isVoiceEnabled) {
-                    // Restart recognition if still enabled
-                    setTimeout(() => {
-                        if (isVoiceEnabled) {
-                            try {
-                                recognition.start();
-                            } catch (e) {
-                                console.log('Recognition restart error:', e);
-                            }
-                        }
-                    }, 100);
-                }
-            };
-
-            recognition.onerror = function(event) {
-                console.error('Speech recognition error:', event.error);
-                if (event.error === 'no-speech') {
-                    // Ignore no-speech errors and continue
-                    return;
-                }
-                if (event.error === 'aborted') {
-                    return;
-                }
-                document.getElementById('listeningIndicator').style.display = 'none';
-            };
-
-            recognition.onresult = function(event) {
-                if (!currentFocusedElement) return;
-
-                let finalTranscript = '';
-                let interimTranscript = '';
-
-                for (let i = event.resultIndex; i < event.results.length; i++) {
-                    const transcript = event.results[i][0].transcript;
-                    if (event.results[i].isFinal) {
-                        finalTranscript += transcript + ' ';
-                    } else {
-                        interimTranscript += transcript;
-                    }
-                }
-
-                if (finalTranscript) {
-                    // Append final transcript to the current value in CAPITAL LETTERS
-                    const currentValue = currentFocusedElement.value || '';
-                    currentFocusedElement.value = currentValue + finalTranscript.toUpperCase();
-                }
-            };
-        }
-
-        function toggleVoiceTyping() {
-            const toggle = document.getElementById('voiceToggle');
-            const status = document.getElementById('voiceStatus');
-            isVoiceEnabled = toggle.checked;
-
-            if (isVoiceEnabled) {
-                if (recognition) {
-                    status.textContent = 'ON';
-                    status.classList.add('voice-active');
-                    showMessage('Voice typing enabled. Click on any text field and start speaking.', 'success');
-                    setupVoiceListeners();
-                } else {
-                    toggle.checked = false;
-                    isVoiceEnabled = false;
-                    showMessage('Voice typing is not supported in your browser. Please use Chrome or Edge.', 'error');
-                }
-            } else {
-                status.textContent = 'OFF';
-                status.classList.remove('voice-active');
-                document.getElementById('listeningIndicator').style.display = 'none';
-                if (recognition) {
-                    recognition.stop();
-                }
-                removeVoiceListeners();
-                showMessage('Voice typing disabled.', 'success');
-            }
-        }
-
-        function setupVoiceListeners() {
-            // Add focus listeners to all text inputs and textareas
-            const inputs = document.querySelectorAll('input[type="text"], textarea');
-            inputs.forEach(input => {
-                input.addEventListener('focus', handleInputFocus);
-                input.addEventListener('blur', handleInputBlur);
-            });
-        }
-
-        function removeVoiceListeners() {
-            const inputs = document.querySelectorAll('input[type="text"], textarea');
-            inputs.forEach(input => {
-                input.removeEventListener('focus', handleInputFocus);
-                input.removeEventListener('blur', handleInputBlur);
-            });
-        }
-
-        function handleInputFocus(event) {
-            if (!isVoiceEnabled) return;
-            currentFocusedElement = event.target;
-            try {
-                recognition.start();
-            } catch (e) {
-                // Recognition already started
-                console.log('Recognition already active');
-            }
-        }
-
-        function handleInputBlur(event) {
-            // Don't stop recognition on blur, keep it running for next field
-        }
-
-        // Save Draft Functionality
         function saveDraft() {
-            const draftData = {
-                formDate: document.getElementById('formDate').value || '',
-                formTime: document.getElementById('formTime').value || '',
-                formPlace: document.getElementById('formPlace').value || '',
-                otherRemarks: document.getElementById('otherRemarks').value || '',
-                cliName: document.getElementById('cliName').value || '',
-                tableData: []
-            };
-
-            // Get all table rows
             const rows = document.querySelectorAll('#tableBody tr');
+            const tableData = [];
+
             rows.forEach((row) => {
-                const cells = row.querySelectorAll('input, select, textarea');
-                draftData.tableData.push({
-                    trainNo: cells[0].value || '',
-                    locoNo: cells[1].value || '',
+                const cells = row.querySelectorAll('input, textarea');
+                const rowData = {
+                    locoNo: cells[0].value || '',
+                    trainNumber: cells[1].value || '',
                     upDn: cells[2].value || '',
-                    lineNo: cells[3].value || '',
-                    arrival: cells[4].value || '',
-                    rsHolding: cells[5].value || '',
-                    remarks: cells[6].value || ''
-                });
+                    signalNumber: cells[3].value || '',
+                    time: cells[4].value || '',
+                    speed: cells[5].value || '',
+                    ruleFollowed: cells[6].value || ''
+                };
+                tableData.push(rowData);
             });
+
+            const draftData = {
+                place: document.getElementById('place').value || '',
+                speedGun: document.getElementById('speedGun').value || '',
+                tableData: tableData,
+                otherRemarks: document.getElementById('otherRemarks').value || '',
+                formDate: document.getElementById('formDate').value || '',
+                cliName: document.getElementById('cliName').value || '',
+                rowCount: rowCount
+            };
 
             // Convert to JSON and download
-            const dataStr = JSON.stringify(draftData, null, 2);
-            const dataBlob = new Blob([dataStr], { type: 'application/json' });
-            const url = URL.createObjectURL(dataBlob);
-            const link = document.createElement('a');
-            link.href = url;
-            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-            link.download = `draft_rs_valve_${timestamp}.json`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            const jsonString = JSON.stringify(draftData, null, 2);
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            const timestamp = new Date().toISOString().split('T')[0];
+            a.download = `Ambush_Check_Draft_${timestamp}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
             URL.revokeObjectURL(url);
 
             showMessage('Draft saved successfully!', 'success');
         }
 
-        // Upload Draft Functionality
-        function uploadDraft(event) {
+        function handleDraftUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
 
@@ -1145,50 +1094,216 @@
                 try {
                     const draftData = JSON.parse(e.target.result);
 
-                    // Fill in the form fields
-                    document.getElementById('formDate').value = draftData.formDate || '';
-                    document.getElementById('formTime').value = draftData.formTime || '';
-                    document.getElementById('formPlace').value = draftData.formPlace || '';
+                    // Restore basic info
+                    document.getElementById('place').value = draftData.place || '';
+                    document.getElementById('speedGun').value = draftData.speedGun || '';
                     document.getElementById('otherRemarks').value = draftData.otherRemarks || '';
+                    document.getElementById('formDate').value = draftData.formDate || '';
                     document.getElementById('cliName').value = draftData.cliName || '';
 
                     // Clear existing table rows
                     const tableBody = document.getElementById('tableBody');
                     tableBody.innerHTML = '';
 
-                    // Add rows from draft data
-                    draftData.tableData.forEach((rowData, index) => {
+                    // Restore table data
+                    rowCount = 0;
+                    draftData.tableData.forEach((rowData) => {
+                        rowCount++;
                         const newRow = document.createElement('tr');
                         newRow.innerHTML = `
-                            <td class="row-number">${index + 1}</td>
-                            <td><input type="text" value="${rowData.trainNo || ''}"></td>
-                            <td><input type="text" value="${rowData.locoNo || ''}"></td>
-                            <td><input type="text" value="${rowData.upDn || ''}"></td>
-                            <td><input type="text" value="${rowData.lineNo || ''}"></td>
-                            <td><input type="text" value="${rowData.arrival || ''}"></td>
-                            <td><select>
-                                <option value="">Select</option>
-                                <option value="YES" ${rowData.rsHolding === 'YES' ? 'selected' : ''}>YES</option>
-                                <option value="NO" ${rowData.rsHolding === 'NO' ? 'selected' : ''}>NO</option>
-                            </select></td>
-                            <td><textarea rows="2">${rowData.remarks || ''}</textarea></td>
+                            <td class="row-number">${rowCount}</td>
+                            <td><input type="text" value="${rowData.locoNo}"></td>
+                            <td><input type="text" value="${rowData.trainNumber}"></td>
+                            <td><input type="text" value="${rowData.upDn}"></td>
+                            <td><input type="text" value="${rowData.signalNumber}"></td>
+                            <td><input type="time" value="${rowData.time}"></td>
+                            <td><input type="text" value="${rowData.speed}"></td>
+                            <td><textarea rows="2">${rowData.ruleFollowed}</textarea></td>
                         `;
                         tableBody.appendChild(newRow);
                     });
 
-                    rowCount = draftData.tableData.length;
-                    showMessage('Draft uploaded and loaded successfully!', 'success');
-
+                    showMessage('Draft uploaded successfully!', 'success');
                 } catch (error) {
-                    console.error('Error parsing draft:', error);
                     showMessage('Error loading draft file. Please check the file format.', 'error');
+                    console.error('Draft upload error:', error);
                 }
             };
             reader.readAsText(file);
 
-            // Reset file input
+            // Reset file input so the same file can be uploaded again
             event.target.value = '';
         }
+
+        // Voice Typing Functionality
+        let recognition = null;
+        let voiceEnabled = false;
+        let currentInput = null;
+
+        function initVoiceRecognition() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                recognition = new SpeechRecognition();
+                recognition.continuous = true;
+                recognition.interimResults = true;
+                recognition.lang = 'en-US';
+
+                recognition.onstart = function() {
+                    document.getElementById('voiceIndicator').classList.add('listening');
+                };
+
+                recognition.onend = function() {
+                    document.getElementById('voiceIndicator').classList.remove('listening');
+                    if (voiceEnabled) {
+                        // Restart recognition if still enabled
+                        setTimeout(() => {
+                            if (voiceEnabled) {
+                                try {
+                                    recognition.start();
+                                } catch (e) {
+                                    console.log('Recognition restart error:', e);
+                                }
+                            }
+                        }, 100);
+                    }
+                };
+
+                recognition.onresult = function(event) {
+                    if (!currentInput) return;
+
+                    let interimTranscript = '';
+                    let finalTranscript = '';
+
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        const transcript = event.results[i][0].transcript;
+                        if (event.results[i].isFinal) {
+                            finalTranscript += transcript + ' ';
+                        } else {
+                            interimTranscript += transcript;
+                        }
+                    }
+
+                    if (finalTranscript) {
+                        const currentValue = currentInput.value;
+                        const cursorPos = currentInput.selectionStart;
+                        const textBefore = currentValue.substring(0, cursorPos);
+                        const textAfter = currentValue.substring(cursorPos);
+
+                        currentInput.value = textBefore + finalTranscript + textAfter;
+
+                        // Move cursor to end of inserted text
+                        const newCursorPos = textBefore.length + finalTranscript.length;
+                        currentInput.setSelectionRange(newCursorPos, newCursorPos);
+                    }
+                };
+
+                recognition.onerror = function(event) {
+                    console.error('Speech recognition error:', event.error);
+                    if (event.error === 'no-speech') {
+                        // Ignore no-speech errors
+                        return;
+                    }
+                    if (event.error === 'not-allowed') {
+                        showMessage('Microphone access denied. Please allow microphone access in your browser settings.', 'error');
+                        document.getElementById('voiceToggle').checked = false;
+                        toggleVoiceTyping();
+                    }
+                };
+
+                return true;
+            } else {
+                showMessage('Voice recognition is not supported in your browser. Please use Chrome or Edge.', 'error');
+                return false;
+            }
+        }
+
+        function toggleVoiceTyping() {
+            const toggle = document.getElementById('voiceToggle');
+            const status = document.getElementById('voiceStatus');
+
+            voiceEnabled = toggle.checked;
+
+            if (voiceEnabled) {
+                if (!recognition) {
+                    if (!initVoiceRecognition()) {
+                        toggle.checked = false;
+                        return;
+                    }
+                }
+
+                status.textContent = 'ON';
+                status.style.color = '#2ecc71';
+
+                try {
+                    recognition.start();
+                    showMessage('Voice typing enabled! Click on any text field to start dictating.', 'success');
+                    setupVoiceInputs();
+                } catch (e) {
+                    console.log('Recognition already started');
+                }
+            } else {
+                status.textContent = 'OFF';
+                status.style.color = 'white';
+
+                if (recognition) {
+                    recognition.stop();
+                }
+
+                document.getElementById('voiceIndicator').classList.remove('listening');
+                showMessage('Voice typing disabled.', 'success');
+                removeVoiceInputs();
+            }
+        }
+
+        function setupVoiceInputs() {
+            const inputs = document.querySelectorAll('input[type="text"], textarea');
+
+            inputs.forEach(input => {
+                input.addEventListener('focus', handleInputFocus);
+                input.addEventListener('blur', handleInputBlur);
+            });
+        }
+
+        function removeVoiceInputs() {
+            const inputs = document.querySelectorAll('input[type="text"], textarea');
+
+            inputs.forEach(input => {
+                input.removeEventListener('focus', handleInputFocus);
+                input.removeEventListener('blur', handleInputBlur);
+            });
+
+            currentInput = null;
+        }
+
+        function handleInputFocus(event) {
+            if (voiceEnabled) {
+                currentInput = event.target;
+                currentInput.style.borderColor = '#e74c3c';
+                currentInput.style.boxShadow = '0 0 10px rgba(231, 76, 60, 0.3)';
+            }
+        }
+
+        function handleInputBlur(event) {
+            if (voiceEnabled && event.target === currentInput) {
+                event.target.style.borderColor = '#b3d9ff';
+                event.target.style.boxShadow = 'none';
+            }
+        }
+
+        // Handle dynamically added rows
+        const originalAddRow = addRow;
+        addRow = function() {
+            originalAddRow();
+            if (voiceEnabled) {
+                setupVoiceInputs();
+            }
+        };
+
+        // Set today's date as default
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('formDate').value = today;
+        });
     </script>
 </body>
 </html>
