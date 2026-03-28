@@ -3,6 +3,8 @@
 
 
 
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -71,6 +73,39 @@
             display: flex;
             align-items: center;
             gap: 10px;
+        }
+
+        .toggle-group {
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .toggle-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .mobile-toggle-label {
+            color: white;
+            font-size: 0.85em;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
         }
 
         .voice-toggle-label {
@@ -482,6 +517,118 @@
             border: 2px solid #f5c6cb;
         }
 
+        /* Mobile View Styles */
+        .zoom-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .zoom-overlay.active {
+            display: flex;
+        }
+
+        .zoom-input-container {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+
+        .zoom-input-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .zoom-input-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .zoom-close-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            font-size: 1.5em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .zoom-close-btn:hover {
+            background: #c0392b;
+            transform: scale(1.1);
+        }
+
+        .zoom-input {
+            width: 100%;
+            min-height: 150px;
+            padding: 15px;
+            font-size: 1.2em;
+            border: 2px solid #4a90e2;
+            border-radius: 8px;
+            resize: vertical;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .zoom-input:focus {
+            outline: none;
+            border-color: #357abd;
+            box-shadow: 0 0 10px rgba(74, 144, 226, 0.3);
+        }
+
+        .zoom-done-btn {
+            margin-top: 15px;
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .zoom-done-btn:hover {
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+            transform: translateY(-2px);
+        }
+
+        /* Mobile View specific table styling */
+        body.mobile-view table {
+            font-size: 14px;
+        }
+
+        body.mobile-view td input,
+        body.mobile-view td textarea {
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        body.mobile-view .table-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 1.5em;
@@ -498,12 +645,18 @@
             }
 
             .voice-toggle-container {
-                flex-direction: row;
-                gap: 8px;
+                flex-direction: column;
+                gap: 10px;
+                width: 100%;
             }
 
-            .voice-toggle-label {
+            .voice-toggle-label,
+            .mobile-toggle-label {
                 font-size: 0.7em;
+            }
+
+            .toggle-item {
+                justify-content: center;
             }
 
             .button-group {
@@ -524,17 +677,41 @@
             <div class="header-content">
                 <div></div>
                 <div class="voice-toggle-container">
-                    <span class="voice-toggle-label">🎤 Voice</span>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="voiceToggle" onchange="toggleVoiceTyping()">
-                        <span class="slider"></span>
-                    </label>
-                    <span class="voice-status" id="voiceStatus">OFF</span>
-                    <span class="voice-indicator" id="voiceIndicator">
-                        <span>🎤</span>
-                        <span class="listening-text">Listening</span>
-                    </span>
+                    <!-- Mobile View Toggle (Left) -->
+                    <div class="toggle-item">
+                        <span class="mobile-toggle-label">📱 Mobile View:</span>
+                        <label class="switch">
+                            <input type="checkbox" id="mobileToggle" onchange="toggleMobileView()">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <!-- Voice Toggle (Right) -->
+                    <div class="toggle-item">
+                        <span class="voice-toggle-label">🎤 Voice:</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="voiceToggle" onchange="toggleVoiceTyping()">
+                            <span class="slider"></span>
+                        </label>
+                        <span class="voice-status" id="voiceStatus">OFF</span>
+                        <span class="voice-indicator" id="voiceIndicator">
+                            <span>🎤</span>
+                            <span class="listening-text">Listening</span>
+                        </span>
+                    </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Zoom Overlay for Mobile View -->
+        <div class="zoom-overlay" id="zoomOverlay">
+            <div class="zoom-input-container">
+                <div class="zoom-input-header">
+                    <span class="zoom-input-title" id="zoomTitle">Enter Text</span>
+                    <button class="zoom-close-btn" onclick="closeZoomInput()">×</button>
+                </div>
+                <textarea class="zoom-input" id="zoomInput" placeholder="Type or speak here..."></textarea>
+                <button class="zoom-done-btn" onclick="closeZoomInput()">✓ Done</button>
             </div>
         </div>
 
@@ -1139,6 +1316,8 @@
         let recognition = null;
         let voiceEnabled = false;
         let currentInput = null;
+        let recognitionActive = false;
+        let restartTimeout = null;
 
         function initVoiceRecognition() {
             if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
@@ -1149,22 +1328,30 @@
                 recognition.lang = 'en-US';
 
                 recognition.onstart = function() {
+                    recognitionActive = true;
+                    if (restartTimeout) {
+                        clearTimeout(restartTimeout);
+                        restartTimeout = null;
+                    }
                     document.getElementById('voiceIndicator').classList.add('listening');
                 };
 
                 recognition.onend = function() {
+                    recognitionActive = false;
                     document.getElementById('voiceIndicator').classList.remove('listening');
-                    if (voiceEnabled) {
-                        // Restart recognition if still enabled
-                        setTimeout(() => {
-                            if (voiceEnabled) {
+
+                    if (voiceEnabled && !restartTimeout) {
+                        // Restart recognition if still enabled with debounce
+                        restartTimeout = setTimeout(() => {
+                            restartTimeout = null;
+                            if (voiceEnabled && !recognitionActive) {
                                 try {
                                     recognition.start();
                                 } catch (e) {
                                     console.log('Recognition restart error:', e);
                                 }
                             }
-                        }, 100);
+                        }, 500);
                     }
                 };
 
@@ -1234,19 +1421,37 @@
                 status.textContent = 'ON';
                 status.style.color = '#2ecc71';
 
-                try {
-                    recognition.start();
-                    showMessage('Voice typing enabled! Click on any text field to start dictating.', 'success');
+                // Clear any pending restart
+                if (restartTimeout) {
+                    clearTimeout(restartTimeout);
+                    restartTimeout = null;
+                }
+
+                // Only start if not already active
+                if (!recognitionActive) {
+                    try {
+                        recognition.start();
+                        showMessage('Voice typing enabled! Click on any text field to start dictating.', 'success');
+                        setupVoiceInputs();
+                    } catch (e) {
+                        console.log('Recognition already started');
+                    }
+                } else {
                     setupVoiceInputs();
-                } catch (e) {
-                    console.log('Recognition already started');
                 }
             } else {
                 status.textContent = 'OFF';
                 status.style.color = 'white';
 
-                if (recognition) {
+                // Clear any pending restart
+                if (restartTimeout) {
+                    clearTimeout(restartTimeout);
+                    restartTimeout = null;
+                }
+
+                if (recognition && recognitionActive) {
                     recognition.stop();
+                    recognitionActive = false;
                 }
 
                 document.getElementById('voiceIndicator').classList.remove('listening');
@@ -1275,7 +1480,20 @@
             currentInput = null;
         }
 
+        let originalInputElement = null;
+
         function handleInputFocus(event) {
+            // Show zoom overlay in mobile view for table inputs
+            if (document.body.classList.contains('mobile-view')) {
+                const target = event.target;
+                const isTableInput = target.closest('td') !== null;
+
+                if (isTableInput) {
+                    openZoomInput(target);
+                    return;
+                }
+            }
+
             if (voiceEnabled) {
                 currentInput = event.target;
                 currentInput.style.borderColor = '#e74c3c';
@@ -1289,6 +1507,85 @@
                 event.target.style.boxShadow = 'none';
             }
         }
+
+        // Mobile View Functions
+        function toggleMobileView() {
+            const toggle = document.getElementById('mobileToggle');
+            const body = document.body;
+
+            if (toggle.checked) {
+                body.classList.add('mobile-view');
+                showMessage('Mobile view enabled! Tap any table input to zoom in.', 'success');
+                setupMobileFocusListeners();
+            } else {
+                body.classList.remove('mobile-view');
+                showMessage('Mobile view disabled.', 'success');
+                removeMobileFocusListeners();
+            }
+        }
+
+        function setupMobileFocusListeners() {
+            // Add focus listeners for mobile zoom
+            document.addEventListener('focus', handleMobileFocus, true);
+        }
+
+        function removeMobileFocusListeners() {
+            document.removeEventListener('focus', handleMobileFocus, true);
+        }
+
+        function handleMobileFocus(event) {
+            const target = event.target;
+            const isTableInput = target.matches('input[type="text"], input[type="time"], textarea') && target.closest('td') !== null;
+
+            if (isTableInput && document.body.classList.contains('mobile-view')) {
+                openZoomInput(target);
+            }
+        }
+
+        function openZoomInput(inputElement) {
+            originalInputElement = inputElement;
+            const overlay = document.getElementById('zoomOverlay');
+            const zoomInput = document.getElementById('zoomInput');
+            const zoomTitle = document.getElementById('zoomTitle');
+
+            // Get the column header text for title
+            const cell = inputElement.closest('td');
+            const cellIndex = Array.from(cell.parentElement.children).indexOf(cell);
+            const headerCell = inputElement.closest('table').querySelector('thead tr').children[cellIndex];
+            const columnName = headerCell ? headerCell.textContent.trim() : 'Enter Text';
+
+            zoomTitle.textContent = columnName;
+            zoomInput.value = inputElement.value;
+
+            overlay.classList.add('active');
+            zoomInput.focus();
+
+            // Prevent the original input from receiving focus
+            inputElement.blur();
+        }
+
+        function closeZoomInput() {
+            const overlay = document.getElementById('zoomOverlay');
+            const zoomInput = document.getElementById('zoomInput');
+
+            if (originalInputElement) {
+                originalInputElement.value = zoomInput.value;
+            }
+
+            overlay.classList.remove('active');
+            zoomInput.value = '';
+            originalInputElement = null;
+        }
+
+        // Close zoom overlay when clicking outside
+        document.addEventListener('DOMContentLoaded', function() {
+            const overlay = document.getElementById('zoomOverlay');
+            overlay.addEventListener('click', function(e) {
+                if (e.target === overlay) {
+                    closeZoomInput();
+                }
+            });
+        });
 
         // Handle dynamically added rows
         const originalAddRow = addRow;
