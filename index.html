@@ -3,6 +3,8 @@
 
 
 
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -466,12 +468,13 @@
                         <tr>
                             <th style="width:32px;">Sl No.</th>
                             <th style="width:130px;">Train No</th>  <!-- increased -->
-                            <th style="width:130px;">Loco No</th>   <!-- increased -->
-                            <th style="width:100px;">Up/Dn</th>     <!-- increased -->
+                            <th style="width:100px;">Loco No</th>   <!-- increased -->
+                            <th style="width:100px;">Up/Dn</th>  
+                              <th style="width:70px;">Speed</th>    <!-- increased -->
                             <th style="width:80px;">Line No</th>
                             <th style="width:75px;">Arr.</th>
-                            <th style="width:130px;">RS Valve Holding (Yes/No)</th>
-                            <th style="width:80px;">Remark</th>     <!-- reduced -->
+                            <th style="width:60px;">RS Valve Holding (Yes/No)</th>
+                            <th style="width:160px;">Remark</th>     <!-- reduced -->
                         </tr>
                     </thead>
                     <tbody id="tableBody">
@@ -602,8 +605,9 @@
             <td><input type="text" value="${esc(data.trainNo)}"></td>
             <td><input type="text" value="${esc(data.locoNo)}"></td>
             <td><input type="text" value="${esc(data.upDn)}"></td>
+            <td><input type="text" value="${esc(data.speed)}"></td>
             <td><input type="text" value="${esc(data.lineNo)}"></td>
-            <td><input type="time" value="${esc(data.arr)}"></td>
+            <td><input type="text" value="${esc(data.arr)}"></td>
             <td>
                 <select class="rs-valve">
                     <option value="Yes" ${data.rsValve === 'No' ? '' : 'selected'}>Yes</option>
@@ -650,10 +654,11 @@
                 trainNo: inputs[0].value,
                 locoNo:  inputs[1].value,
                 upDn:    inputs[2].value,
-                lineNo:  inputs[3].value,
-                arr:     inputs[4].value,
-                rsValve: inputs[5].value,
-                remark:  inputs[6].value
+                speed:   inputs[3].value,
+                lineNo:  inputs[4].value,
+                arr:     inputs[5].value,
+                rsValve: inputs[6].value,
+                remark:  inputs[7].value
             };
         });
     }
@@ -704,6 +709,7 @@
             trainNo: r.trainNo,
             locoNo:  r.locoNo,
             upDn:    r.upDn,
+            speed:   r.speed,
             lineNo:  r.lineNo,
             arr:     r.arr,
             rsValve: r.rsValve,
@@ -846,60 +852,90 @@
         // ── Table ──
         const rows = collectRows();
         const tableData = rows.map(r => [
-            r.slNo, r.trainNo, r.locoNo, r.upDn, r.lineNo, r.arr, r.rsValve, r.remark
+            r.slNo, r.trainNo, r.locoNo, r.upDn, r.speed, r.lineNo, r.arr, r.rsValve, r.remark
         ]);
 
+        const tableHead = [['Sl No.', 'Train No', 'Loco No', 'Up/Dn', 'Speed', 'Line No', 'Arr.', 'RS Valve Holding\n(Yes/No)', 'Remark']];
+        const colStyles = {
+            0: { cellWidth: 12 },
+            1: { cellWidth: 26 },  // Train No
+            2: { cellWidth: 26 },  // Loco No
+            3: { cellWidth: 20 },  // Up/Dn
+            4: { cellWidth: 22 },  // Speed
+            5: { cellWidth: 20 },  // Line No
+            6: { cellWidth: 20 },  // Arr.
+            7: { cellWidth: 28 },  // RS Valve
+            8: { cellWidth: 66 }   // Remark
+        };
+        const headSty = {
+            fillColor: [10, 80, 160],
+            textColor: [255, 255, 255],
+            fontStyle: 'bold',
+            halign: 'center',
+            fontSize: 8,
+            cellPadding: 2
+        };
+        const bodySty = { fontSize: 7.5, cellPadding: 2.6, halign: 'center', textColor: [0, 0, 0] };
+        const altRow   = { fillColor: [240, 248, 255] };
+
+        const totalTableWidth = 12+26+26+20+22+20+20+28+66; // 240mm
+        const centreMargin = (pageWidth - totalTableWidth) / 2;
+
+        const page1Data = tableData.slice(0, 12);
+        const page2Data = tableData.slice(12);
+
+        // Page 1 table (rows 1-12)
         doc.autoTable({
-            head: [['Sl No.', 'Train No', 'Loco No', 'Up/Dn', 'Line No', 'Arr.', 'RS Valve Holding\n(Yes/No)', 'Remark']],
-            body: tableData,
+            head: tableHead,
+            body: page1Data,
             startY: hdrH + 20,
             theme: 'grid',
-            headStyles: {
-                fillColor: [10, 80, 160],    // navy matching header
-                textColor: [255, 255, 255],
-                fontStyle: 'bold',
-                halign: 'center',
-                fontSize: 9
-            },
-            styles: { fontSize: 8, cellPadding: 3, halign: 'center' },
-            columnStyles: {
-                0: { cellWidth: 13 },
-                1: { cellWidth: 35 },  // Train No wider
-                2: { cellWidth: 35 },  // Loco No wider
-                3: { cellWidth: 22 },  // Up/Dn wider
-                4: { cellWidth: 20 },
-                5: { cellWidth: 20 },
-                6: { cellWidth: 35 },
-                7: { cellWidth: 'auto' }  // Remark narrower (auto fills rest)
-            },
-            alternateRowStyles: { fillColor: [240, 248, 255] }
+            headStyles: headSty,
+            styles: bodySty,
+            margin: { left: centreMargin, right: centreMargin, bottom: 5 },
+            columnStyles: colStyles,
+            alternateRowStyles: altRow
         });
 
         let y = doc.lastAutoTable.finalY + 10;
 
-        // ── Remarks ──
+        // If overflow rows exist, add page 2
+        if (page2Data.length > 0) {
+            // Page 2 - no heading, just table starting from top margin
+            doc.addPage();
+
+            doc.autoTable({
+                head: tableHead,
+                body: page2Data,
+                startY: 10,
+                theme: 'grid',
+                headStyles: headSty,
+                styles: bodySty,
+                margin: { left: centreMargin, right: centreMargin, bottom: 5 },
+                columnStyles: colStyles,
+                alternateRowStyles: altRow
+            });
+
+            y = doc.lastAutoTable.finalY + 10;
+        }
+
+        // Other Remarks - always on last page below last row
         const remarks = document.getElementById('otherRemarks').value || '';
-        doc.setFontSize(9);
-        doc.setFont(undefined, 'bold');
-        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(9); doc.setFont(undefined, 'bold'); doc.setTextColor(0, 0, 0);
         doc.text('Other Remarks if any:', 14, y);
         if (remarks) {
-            doc.setFont(undefined, 'normal');
+            doc.setFont(undefined, 'normal'); doc.setFontSize(9);
             const split = doc.splitTextToSize(remarks, pageWidth - 28);
             doc.text(split, 14, y + 6);
             y += split.length * 5 + 10;
-        } else {
-            y += 10;
-        }
+        } else { y += 10; }
 
-        // ── Footer: CLI Name + Signature ──
+        // Footer: CLI Name + Signature (always on last page)
         const cliName = document.getElementById('cliName').value || '';
         const sigFile = document.getElementById('signature').files[0];
 
         function finalizePDF() {
-            doc.setFontSize(9);
-            doc.setFont(undefined, 'bold');
-            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(9); doc.setFont(undefined, 'bold'); doc.setTextColor(0, 0, 0);
             if (cliName) doc.text(cliName, pageWidth - 14, y + 22, { align: 'right' });
             doc.save(`RSValve_AmbushCheck_${new Date().toISOString().split('T')[0]}.pdf`);
             showMessage('PDF generated and downloaded successfully!', 'success');
