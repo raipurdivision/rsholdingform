@@ -5,6 +5,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -421,6 +422,9 @@
                         <span class="slider"></span>
                     </label>
                 </div>
+                <div id="autoSaveStatus" style="color:#a5d6a7; font-size:0.78em; font-weight:bold; text-align:center;">
+                    💾 Auto-Save: <span id="autoSaveText">Ready</span>
+                </div>
                 <div class="voice-toggle-container">
                     <span class="voice-toggle-label">🎤 Voice</span>
                     <label class="toggle-switch">
@@ -442,8 +446,8 @@
             <div class="info-section">
                 <div class="info-fields">
                     <div class="info-field">
-                        <label for="formDate">Date:</label>
-                        <input type="date" id="formDate">
+                        <label for="formDate">Date (DD/MM/YYYY):</label>
+                        <input type="text" id="formDate" placeholder="DD/MM/YYYY" maxlength="10" oninput="formatDateInput(this)">
                     </div>
                     <div class="info-field">
                         <label for="formTime">Time:</label>
@@ -526,7 +530,7 @@
                                 <option value="K P LAHARE/CLI/R">K P LAHRE/CLI/BIA</option>
                                 <option value="K P HIRWANI/CLI/BYT">K P HIRWANI/CLI/BYT</option>
                                 <option value="K. K. SAHU/CLI/BIA">K. K. SAHU/CLI/BIA</option>
-                                <option value="KHUSHAL SINGH/CLI/DRZ">KHUSHAL SINGH/CLI/DRZ</option>
+                                <option value="KHUSAL SINGH/CLI/DRZ">KHUSAL SINGH/CLI/DRZ</option>
                                 <option value="MAHESHWAR/CLI/BIA">MAHESHWAR/CLI/BIA</option>
                                 <option value="MANOJ KUMAR SAO/CLI/R">MANOJ KUMAR SAO/CLI/R</option>
                                 <option value="MANSUKH LAL CHANDRAKAR/CLI/R">MANSUKH LAL CHANDRAKAR/CLI/R</option>
@@ -538,7 +542,7 @@
                                 <option value="P.K. PATEL/CLI/BIA">P.K. PATEL/CLI/BIA</option>
                                 <option value="PANKAJ KUMAR SINGH/CLI/BIA">PANKAJ KUMAR SINGH/CLI/BIA</option>
                                 <option value="PAWAN KUMAR SINGH/CLI/BIA">PAWAN KUMAR SINGH/CLI/BIA
-                                <option value="PURAN LAL PATEL/CLI/BYT">PURAN LAL PATEL/CLI/BYT</option>
+                                <option value="PURAN LAL PATEL/CLI/BYT">A.R. TARAM/CLI/BIA</option>
                                 <option value="RAJENDRA KUMAR/CLI/BIA">RAJENDRA KUMAR/CLI/BIA</option>
                                 <option value="PALAK RAM ALENDRA/CLI/DRZ">PALAK RAM ALENDRA/CLI/DRZ</option>
                                 <option value="RAJESH KUMAR DESHMUKH/CLI/R">RAJESH KUMAR DESHMUKH/CLI/R</option>
@@ -556,8 +560,10 @@
                                 <option value="SANJEEV KUMAR SHARMA/CLI/BIA">SANJEEV KUMAR SHARMA/CLI/BIA</option>
                                 <option value="SANTOSH KUAMAR PATKAR/CLI/BIA">SANTOSH KUAMAR PATKAR/CLI/BIA</option>
                                 <option value="SHAILENDRA SINGH/CLI/BIA">SHAILENDRA SINGH/CLI/BIA</option>
+                                <option value="SATYENDRA KUMAR/CLI/BYT">SATYENDRA KUMAR/CLI/BYT</option>
                                 <option value="SUNDEEP KUMAR SHARMA/CLI/BIA">SUNDEEP KUMAR SHARMA/CLI/BIA</option>
                                 <option value="SUNIL KUMAR DEWANGAN/CLI/BIA">SUNIL KUMAR DEWANGAN/CLI/BIA</option>
+                                <option value="SURENDRA KUMAR SONI/CLI/BYT">SURENDRA KUMAR SONI/CLI/BYT</option>
                                 <option value="SANAT KUMAR SAHU/CLI/DRZ">SANAT KUMAR SAHU/CLI/DRZ</option>
                                 <option value="TEST ID/CLI/BIA">TEST ID/CLI/BIA</option>
                                 <option value="V.K. BHAGAT/CLI/R">V.K. BHAGAT/CLI/R</option>
@@ -568,8 +574,12 @@
                                 <option value="Y. RAMU/CLI/BIA">Y. RAMU/CLI/BIA</option>
                                 <option value="YOGESH KUMAR MIHAULIA/CLI/BIA">YOGESH KUMAR MIHAULIA/CLI/BIA</option>
                                 <option value="OTHERS">OTHERS</option>
-                        <option value="OTHERS">OTHERS</option>
                     </select>
+                    <div id="cliNameOtherWrapper" style="display:none; margin-top:6px;">
+                        <input type="text" id="cliNameOther" placeholder="Enter CLI Name and HQ manually"
+                               oninput="syncCliNameOther(this.value)"
+                               style="width:100%; padding:6px; border:2px solid #f9a825; border-radius:5px; font-size:12px; font-weight:bold; text-transform:uppercase;">
+                    </div>
                 </div>
                 <div class="info-field wide">
                     <label for="signature">Upload Signature:</label>
@@ -671,7 +681,7 @@
         const ambushBy     = document.getElementById('ambushBy').value;
         const place        = document.getElementById('place').value;
         const otherRemarks = document.getElementById('otherRemarks').value;
-        const cliName      = document.getElementById('cliName').value;
+        const cliName      = getCliName();
         const rows         = collectRows();
 
         // Validate required fields
@@ -727,6 +737,7 @@
             });
             // no-cors returns opaque response — assume success if no error thrown
             isSubmitted = true;
+            clearAutoSave();
             showMessage('✅ Data saved to Google Sheet successfully!', 'success');
         } catch (err) {
             showMessage('❌ Error saving to Google Sheet: ' + err.message, 'error');
@@ -741,7 +752,8 @@
             place:        document.getElementById('place').value,
             tableData:    collectRows(),
             otherRemarks: document.getElementById('otherRemarks').value,
-            cliName:      document.getElementById('cliName').value
+            cliName:      document.getElementById('cliName').value,
+            cliNameOther: document.getElementById('cliNameOther').value
         };
         const blob = new Blob([JSON.stringify(draft, null, 2)], { type: 'application/json' });
         const url  = URL.createObjectURL(blob);
@@ -767,6 +779,14 @@
                 document.getElementById('place').value        = d.place       || '';
                 document.getElementById('otherRemarks').value = d.otherRemarks|| '';
                 document.getElementById('cliName').value      = d.cliName     || '';
+                // Restore "Others" text box if needed
+                if (d.cliName === 'OTHERS') {
+                    document.getElementById('cliNameOtherWrapper').style.display = 'block';
+                    document.getElementById('cliNameOther').value = d.cliNameOther || '';
+                } else {
+                    document.getElementById('cliNameOtherWrapper').style.display = 'none';
+                    document.getElementById('cliNameOther').value = '';
+                }
                 autoResizeTextarea(document.getElementById('otherRemarks'));
 
                 const tbody = document.getElementById('tableBody');
@@ -931,7 +951,7 @@
         } else { y += 10; }
 
         // Footer: CLI Name + Signature (always on last page)
-        const cliName = document.getElementById('cliName').value || '';
+        const cliName = getCliName();
         const sigFile = document.getElementById('signature').files[0];
 
         function finalizePDF() {
@@ -951,6 +971,43 @@
         } else {
             finalizePDF();
         }
+    }
+
+    // ── CLI Name "Others" text box ────────────────────────────────────────────
+    document.getElementById('cliName').addEventListener('change', function () {
+        const wrapper = document.getElementById('cliNameOtherWrapper');
+        const otherInput = document.getElementById('cliNameOther');
+        if (this.value === 'OTHERS') {
+            wrapper.style.display = 'block';
+            otherInput.focus();
+        } else {
+            wrapper.style.display = 'none';
+            otherInput.value = '';
+        }
+    });
+
+    function syncCliNameOther(val) {
+        // Keep the select's effective value in sync so PDF/submit pick it up
+        const sel = document.getElementById('cliName');
+        if (sel.value === 'OTHERS') {
+            // We'll intercept reads of cliName in generatePDF / submitForm via helper
+        }
+    }
+
+    function getCliName() {
+        const sel = document.getElementById('cliName');
+        if (sel.value === 'OTHERS') {
+            return document.getElementById('cliNameOther').value.trim().toUpperCase() || 'OTHERS';
+        }
+        return sel.value;
+    }
+
+    function formatDateInput(el) {
+        // Auto-insert slashes: DD/MM/YYYY
+        let v = el.value.replace(/[^0-9]/g, '');
+        if (v.length > 2) v = v.slice(0,2) + '/' + v.slice(2);
+        if (v.length > 5) v = v.slice(0,5) + '/' + v.slice(5,9);
+        el.value = v;
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
@@ -1094,14 +1151,130 @@
         originalInputElement = null;
     }
 
+    // ── Auto-Save (localStorage) ──────────────────────────────────────────────
+    const AUTO_SAVE_KEY = 'rsValve_autoSave';
+    let autoSaveTimer = null;
+
+    function autoSaveData() {
+        try {
+            const draft = {
+                date:         document.getElementById('formDate').value,
+                time:         document.getElementById('formTime').value,
+                ambushBy:     document.getElementById('ambushBy').value,
+                place:        document.getElementById('place').value,
+                otherRemarks: document.getElementById('otherRemarks').value,
+                cliName:      document.getElementById('cliName').value,
+                cliNameOther: document.getElementById('cliNameOther').value,
+                tableData:    collectRows(),
+                savedAt:      new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+            };
+            localStorage.setItem(AUTO_SAVE_KEY, JSON.stringify(draft));
+            const txt = document.getElementById('autoSaveText');
+            txt.textContent = 'Saved at ' + draft.savedAt;
+            document.getElementById('autoSaveStatus').style.color = '#a5d6a7';
+        } catch (e) {
+            document.getElementById('autoSaveText').textContent = 'Failed!';
+            document.getElementById('autoSaveStatus').style.color = '#ef9a9a';
+        }
+    }
+
+    function scheduleAutoSave() {
+        const txt = document.getElementById('autoSaveText');
+        txt.textContent = 'Saving…';
+        document.getElementById('autoSaveStatus').style.color = '#fff59d';
+        clearTimeout(autoSaveTimer);
+        autoSaveTimer = setTimeout(autoSaveData, 1500); // debounce 1.5s after last change
+    }
+
+    function autoRestoreData() {
+        try {
+            const raw = localStorage.getItem(AUTO_SAVE_KEY);
+            if (!raw) return;
+            const d = JSON.parse(raw);
+
+            // Show restore banner
+            const banner = document.createElement('div');
+            banner.id = 'restoreBanner';
+            banner.style.cssText = `
+                position:fixed; top:0; left:0; right:0; z-index:99999;
+                background:#1565c0; color:white; text-align:center;
+                padding:12px 20px; font-size:13px; font-weight:bold;
+                box-shadow:0 3px 10px rgba(0,0,0,0.3);
+                display:flex; align-items:center; justify-content:center; gap:15px;
+            `;
+            banner.innerHTML = `
+                <span>🔄 Auto-saved data found (saved at ${d.savedAt || 'unknown time'}). Restore it?</span>
+                <button onclick="confirmRestore()" style="background:#27ae60;color:white;border:none;border-radius:6px;padding:6px 16px;font-weight:bold;cursor:pointer;">✅ Restore</button>
+                <button onclick="dismissRestore()" style="background:#e74c3c;color:white;border:none;border-radius:6px;padding:6px 16px;font-weight:bold;cursor:pointer;">❌ Dismiss</button>
+            `;
+            document.body.prepend(banner);
+
+            // Store for use in confirmRestore
+            window._pendingRestore = d;
+        } catch (e) { /* ignore */ }
+    }
+
+    function confirmRestore() {
+        const d = window._pendingRestore;
+        if (!d) return;
+        document.getElementById('formDate').value     = d.date        || '';
+        document.getElementById('formTime').value     = d.time        || '';
+        document.getElementById('ambushBy').value     = d.ambushBy    || '';
+        document.getElementById('place').value        = d.place       || '';
+        document.getElementById('otherRemarks').value = d.otherRemarks|| '';
+        document.getElementById('cliName').value      = d.cliName     || '';
+        if (d.cliName === 'OTHERS') {
+            document.getElementById('cliNameOtherWrapper').style.display = 'block';
+            document.getElementById('cliNameOther').value = d.cliNameOther || '';
+        } else {
+            document.getElementById('cliNameOtherWrapper').style.display = 'none';
+            document.getElementById('cliNameOther').value = '';
+        }
+        autoResizeTextarea(document.getElementById('otherRemarks'));
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = '';
+        rowCount = 0;
+        (d.tableData || []).forEach(row => {
+            rowCount++;
+            tbody.insertAdjacentHTML('beforeend', buildRow(rowCount, row));
+        });
+        dismissRestore();
+        showMessage('✅ Auto-saved data restored successfully!', 'success');
+    }
+
+    function dismissRestore() {
+        const b = document.getElementById('restoreBanner');
+        if (b) b.remove();
+        window._pendingRestore = null;
+    }
+
+    function clearAutoSave() {
+        localStorage.removeItem(AUTO_SAVE_KEY);
+        document.getElementById('autoSaveText').textContent = 'Cleared';
+    }
+
     // ── Init ──────────────────────────────────────────────────────────────────
     document.addEventListener('DOMContentLoaded', () => {
-        document.getElementById('formDate').value = new Date().toISOString().split('T')[0];
+        const today = new Date();
+        const dd = String(today.getDate()).padStart(2,'0');
+        const mm = String(today.getMonth()+1).padStart(2,'0');
+        const yyyy = today.getFullYear();
+        document.getElementById('formDate').value = `${dd}/${mm}/${yyyy}`;
         initTable();
 
         document.getElementById('otherRemarks').addEventListener('input', function() {
             autoResizeTextarea(this);
         });
+
+        // Auto-save: trigger on any input/change in the form
+        document.querySelector('.form-container').addEventListener('input', scheduleAutoSave);
+        document.querySelector('.form-container').addEventListener('change', scheduleAutoSave);
+
+        // Also auto-save every 30 seconds regardless
+        setInterval(autoSaveData, 30000);
+
+        // Restore auto-saved data on load
+        autoRestoreData();
 
         document.addEventListener('focus', e => {
             if (document.body.classList.contains('mobile-view') &&
