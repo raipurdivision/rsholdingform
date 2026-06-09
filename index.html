@@ -6,6 +6,8 @@
 
 
 
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -385,6 +387,24 @@
 
         td.row-number { font-weight: bold; background-color: #e6f2ff; width: 30px; }
 
+        .updn-other-input {
+            display: none;
+            margin-top: 3px;
+            width: 100%;
+            padding: 4px 5px;
+            border: 2px solid #f9a825;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            background: #fffde7;
+        }
+        .updn-other-input:focus {
+            outline: none;
+            border-color: #e67e22;
+            box-shadow: 0 0 6px rgba(230,126,34,0.35);
+        }
+
         @media (max-width: 768px) {
             .header h1 { font-size: 1em; }
             .header h2 { font-size: 1em; }
@@ -393,7 +413,9 @@
             button { width: 100%; }
         }
     </style>
-</head>
+<!-- Code injected by Five-server -->
+  <script async data-id="five-server" data-file="c:\Users\asus\OneDrive\Desktop\ALL CODES\ALL FORMS\RS HOLDING AMBUSH\index.html" type="application/javascript" src="/fiveserver.js"></script>
+  </head>
 <body>
 
     <!-- Zoom Overlay -->
@@ -614,7 +636,20 @@
             <td class="row-number">${n}</td>
             <td><input type="text" value="${esc(data.trainNo)}"></td>
             <td><input type="text" value="${esc(data.locoNo)}"></td>
-            <td><input type="text" value="${esc(data.upDn)}"></td>
+            <td>
+                <select class="updn-select" onchange="toggleUpdnOther(this)">
+                    <option value="">--Select--</option>
+                    <option value="UP"        ${data.upDn === 'UP'        ? 'selected' : ''}>UP</option>
+                    <option value="DN"        ${data.upDn === 'DN'        ? 'selected' : ''}>DN</option>
+                    <option value="UP MIDDLE" ${data.upDn === 'UP MIDDLE' ? 'selected' : ''}>UP MIDDLE</option>
+                    <option value="DN MIDDLE" ${data.upDn === 'DN MIDDLE' ? 'selected' : ''}>DN MIDDLE</option>
+                    <option value="OTHER"     ${(data.upDn && !['UP','DN','UP MIDDLE','DN MIDDLE'].includes(data.upDn)) ? 'selected' : ''}>OTHER</option>
+                </select>
+                <input type="text" class="updn-other-input"
+                       placeholder="Enter value…"
+                       value="${(data.upDn && !['UP','DN','UP MIDDLE','DN MIDDLE'].includes(data.upDn)) ? esc(data.upDn) : ''}"
+                       style="display:${(data.upDn && !['UP','DN','UP MIDDLE','DN MIDDLE'].includes(data.upDn)) ? 'block' : 'none'}">
+            </td>
             <td><input type="text" value="${esc(data.speed)}"></td>
             <td><input type="text" value="${esc(data.lineNo)}"></td>
             <td><input type="text" value="${esc(data.arr)}"></td>
@@ -629,6 +664,18 @@
     }
 
     function esc(v) { return v ? String(v).replace(/"/g,'&quot;').replace(/</g,'&lt;') : ''; }
+
+    function toggleUpdnOther(sel) {
+        const otherInput = sel.parentElement.querySelector('.updn-other-input');
+        if (!otherInput) return;
+        if (sel.value === 'OTHER') {
+            otherInput.style.display = 'block';
+            otherInput.focus();
+        } else {
+            otherInput.style.display = 'none';
+            otherInput.value = '';
+        }
+    }
 
     function initTable() {
         const tbody = document.getElementById('tableBody');
@@ -659,16 +706,24 @@
     function collectRows() {
         return Array.from(document.querySelectorAll('#tableBody tr')).map((row, i) => {
             const inputs = row.querySelectorAll('input, select, textarea');
+            // inputs[0]=trainNo, inputs[1]=locoNo
+            // inputs[2]=upDn select, inputs[3]=upDn other text
+            // inputs[4]=speed, inputs[5]=lineNo, inputs[6]=arr, inputs[7]=rsValve, inputs[8]=remark
+            const updnSel = row.querySelector('.updn-select');
+            const updnOther = row.querySelector('.updn-other-input');
+            const upDnVal = updnSel && updnSel.value === 'OTHER'
+                ? (updnOther ? updnOther.value.trim() : '')
+                : (updnSel ? updnSel.value : '');
             return {
                 slNo:    i + 1,
                 trainNo: inputs[0].value,
                 locoNo:  inputs[1].value,
-                upDn:    inputs[2].value,
-                speed:   inputs[3].value,
-                lineNo:  inputs[4].value,
-                arr:     inputs[5].value,
-                rsValve: inputs[6].value,
-                remark:  inputs[7].value
+                upDn:    upDnVal,
+                speed:   inputs[4].value,
+                lineNo:  inputs[5].value,
+                arr:     inputs[6].value,
+                rsValve: inputs[7].value,
+                remark:  inputs[8].value
             };
         });
     }
@@ -877,14 +932,14 @@
 
         const tableHead = [['Sl No.', 'Train No', 'Loco No', 'Up/Dn', 'Speed', 'Line No', 'Arr.', 'RS Valve Holding\n(Yes/No)', 'Remark']];
         const colStyles = {
-            0: { cellWidth: 12 },
-            1: { cellWidth: 26 },  // Train No
-            2: { cellWidth: 26 },  // Loco No
-            3: { cellWidth: 20 },  // Up/Dn
-            4: { cellWidth: 22 },  // Speed
-            5: { cellWidth: 20 },  // Line No
+            0: { cellWidth: 10 },
+            1: { cellWidth: 24 },  // Train No
+            2: { cellWidth: 24 },  // Loco No
+            3: { cellWidth: 32 },  // Up/Dn
+            4: { cellWidth: 20 },  // Speed
+            5: { cellWidth: 26 },  // Line No
             6: { cellWidth: 20 },  // Arr.
-            7: { cellWidth: 28 },  // RS Valve
+            7: { cellWidth: 26 },  // RS Valve
             8: { cellWidth: 66 }   // Remark
         };
         const headSty = {
