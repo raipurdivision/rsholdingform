@@ -8,6 +8,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -496,7 +497,6 @@
                             <th style="width:130px;">Train No</th>  <!-- increased -->
                             <th style="width:100px;">Loco No</th>   <!-- increased -->
                             <th style="width:100px;">Up/Dn</th>  
-                              <th style="width:70px;">Speed</th>    <!-- increased -->
                             <th style="width:80px;">Line No</th>
                             <th style="width:75px;">Arr.</th>
                             <th style="width:60px;">RS Valve Holding (Yes/No)</th>
@@ -650,7 +650,6 @@
                        value="${(data.upDn && !['UP','DN','UP MIDDLE','DN MIDDLE'].includes(data.upDn)) ? esc(data.upDn) : ''}"
                        style="display:${(data.upDn && !['UP','DN','UP MIDDLE','DN MIDDLE'].includes(data.upDn)) ? 'block' : 'none'}">
             </td>
-            <td><input type="text" value="${esc(data.speed)}"></td>
             <td><input type="text" value="${esc(data.lineNo)}"></td>
             <td><input type="text" value="${esc(data.arr)}"></td>
             <td>
@@ -708,7 +707,7 @@
             const inputs = row.querySelectorAll('input, select, textarea');
             // inputs[0]=trainNo, inputs[1]=locoNo
             // inputs[2]=upDn select, inputs[3]=upDn other text
-            // inputs[4]=speed, inputs[5]=lineNo, inputs[6]=arr, inputs[7]=rsValve, inputs[8]=remark
+            // inputs[4]=lineNo, inputs[5]=arr, inputs[6]=rsValve, inputs[7]=remark
             const updnSel = row.querySelector('.updn-select');
             const updnOther = row.querySelector('.updn-other-input');
             const upDnVal = updnSel && updnSel.value === 'OTHER'
@@ -719,11 +718,10 @@
                 trainNo: inputs[0].value,
                 locoNo:  inputs[1].value,
                 upDn:    upDnVal,
-                speed:   inputs[4].value,
-                lineNo:  inputs[5].value,
-                arr:     inputs[6].value,
-                rsValve: inputs[7].value,
-                remark:  inputs[8].value
+                lineNo:  inputs[4].value,
+                arr:     inputs[5].value,
+                rsValve: inputs[6].value,
+                remark:  inputs[7].value
             };
         });
     }
@@ -774,7 +772,6 @@
             trainNo: r.trainNo,
             locoNo:  r.locoNo,
             upDn:    r.upDn,
-            speed:   r.speed,
             lineNo:  r.lineNo,
             arr:     r.arr,
             rsValve: r.rsValve,
@@ -927,20 +924,19 @@
         // ── Table ──
         const rows = collectRows();
         const tableData = rows.map(r => [
-            r.slNo, r.trainNo, r.locoNo, r.upDn, r.speed, r.lineNo, r.arr, r.rsValve, r.remark
+            r.slNo, r.trainNo, r.locoNo, r.upDn, r.lineNo, r.arr, r.rsValve, r.remark
         ]);
 
-        const tableHead = [['Sl No.', 'Train No', 'Loco No', 'Up/Dn', 'Speed', 'Line No', 'Arr.', 'RS Valve Holding\n(Yes/No)', 'Remark']];
+        const tableHead = [['Sl No.', 'Train No', 'Loco No', 'Up/Dn', 'Line No', 'Arr.', 'RS Valve Holding\n(Yes/No)', 'Remark']];
         const colStyles = {
             0: { cellWidth: 10 },
             1: { cellWidth: 24 },  // Train No
             2: { cellWidth: 24 },  // Loco No
             3: { cellWidth: 32 },  // Up/Dn
-            4: { cellWidth: 20 },  // Speed
-            5: { cellWidth: 26 },  // Line No
-            6: { cellWidth: 20 },  // Arr.
-            7: { cellWidth: 26 },  // RS Valve
-            8: { cellWidth: 66 }   // Remark
+            4: { cellWidth: 26 },  // Line No
+            5: { cellWidth: 20 },  // Arr.
+            6: { cellWidth: 26 },  // RS Valve
+            7: { cellWidth: 86 }   // Remark (wider since Speed column removed)
         };
         const headSty = {
             fillColor: [10, 80, 160],
@@ -953,7 +949,7 @@
         const bodySty = { fontSize: 7.5, cellPadding: 2.6, halign: 'center', textColor: [0, 0, 0] };
         const altRow   = { fillColor: [240, 248, 255] };
 
-        const totalTableWidth = 12+26+26+20+22+20+20+28+66; // 240mm
+        const totalTableWidth = 10+24+24+32+26+20+26+86; // 248mm
         const centreMargin = (pageWidth - totalTableWidth) / 2;
 
         const page1Data = tableData.slice(0, 12);
