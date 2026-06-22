@@ -9,6 +9,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -754,40 +755,51 @@
 
         showMessage('Saving to Google Sheet… please wait.', 'success');
 
-        // Build form-urlencoded payload matching GS "RS Holding" sheet
-        // GS headers: Timestamp, CLI Name & HQ, CLI Name-2 & HQ, Date, Time,
-        //             Place, LC Gate No, RS Valve Holding, Other Remarks, Date of Inspection
-        // We map: cliName1 = ambushBy (conducted by), cliName2 = cliName (selected CLI)
-        // records are sent as JSON string for informational storage
-        const params = new URLSearchParams();
-        params.append('sheet',           'RS Holding');
-        params.append('cliName1',        ambushBy);
-        params.append('cliName2',        cliName);
-        params.append('date',            date);
-        params.append('time',            time);
-        params.append('place',           place);
-        params.append('lcGateNo',        '');
-        params.append('rsValveHolding',  JSON.stringify(rows.map(r => ({
-            slNo:    r.slNo,
-            trainNo: r.trainNo,
-            locoNo:  r.locoNo,
-            upDn:    r.upDn,
-            lineNo:  r.lineNo,
-            arr:     r.arr,
-            rsValve: r.rsValve,
-            remark:  r.remark
-        }))));
-        params.append('otherRemarks',    otherRemarks);
-        params.append('dateOfInspection', date);
-
         try {
-            const response = await fetch(SHEET_SCRIPT_URL, {
-                method: 'POST',
-                mode:   'no-cors',
+            // ── STEP 1: Send SUMMARY row (Timestamp, CLI1, CLI2, Date, Time, Place, Other Remarks) ──
+            const summaryParams = new URLSearchParams();
+            summaryParams.append('sheet',        'RS Holding');
+            summaryParams.append('rowType',      'SUMMARY');
+            summaryParams.append('cliName1',     ambushBy);
+            summaryParams.append('cliName2',     cliName);
+            summaryParams.append('date',         date);
+            summaryParams.append('time',         time);
+            summaryParams.append('place',        place);
+            summaryParams.append('otherRemarks', otherRemarks);
+
+            await fetch(SHEET_SCRIPT_URL, {
+                method:  'POST',
+                mode:    'no-cors',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body:   params.toString()
+                body:    summaryParams.toString()
             });
-            // no-cors returns opaque response — assume success if no error thrown
+
+            // ── STEP 2: Send each table row individually ──
+            for (const r of rows) {
+                // Skip completely empty rows
+                if (!r.trainNo && !r.locoNo && !r.upDn && !r.lineNo && !r.arr && !r.remark) continue;
+
+                const rowParams = new URLSearchParams();
+                rowParams.append('sheet',    'RS Holding');
+                rowParams.append('rowType',  'DATA');
+                rowParams.append('slNo',     r.slNo);
+                rowParams.append('trainNo',  r.trainNo);
+                rowParams.append('locoNo',   r.locoNo);
+                rowParams.append('upDn',     r.upDn);
+                rowParams.append('lineNo',   r.lineNo);
+                rowParams.append('arr',      r.arr);
+                rowParams.append('rsValve',  r.rsValve);
+                rowParams.append('remark',   r.remark);
+
+                await fetch(SHEET_SCRIPT_URL, {
+                    method:  'POST',
+                    mode:    'no-cors',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body:    rowParams.toString()
+                });
+            }
+
+            // no-cors returns opaque responses — assume success if no error thrown
             isSubmitted = true;
             clearAutoSave();
             showMessage('✅ Data saved to Google Sheet successfully!', 'success');
